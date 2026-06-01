@@ -14,7 +14,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * In-memory directed graph representation of the project's runtime topology.
+ * The graph is built from topics and agents so it can be analyzed for cycles
+ * and rendered for the HTTP-based visualization layer.
+ */
 public class Graph extends ArrayList<Node> {
+    /**
+     * Creates an empty runtime graph.
+     */
+    public Graph() {
+    }
+
+    /**
+     * Determines whether any node in the graph participates in a cycle.
+     *
+     * @return {@code true} if the graph contains at least one cycle; otherwise {@code false}
+     */
     public boolean hasCycles() {
         for (Node node : this) {
             if (node.hasCycles()) {
@@ -24,6 +40,12 @@ public class Graph extends ArrayList<Node> {
         return false;
     }
 
+    /**
+     * Rebuilds the graph from the topics currently registered in the
+     * {@link TopicManagerSingleton} singleton.
+     *
+     * @throws IllegalStateException if reflective access to runtime topology data fails
+     */
     public void createFromTopics() {
         clear();
 

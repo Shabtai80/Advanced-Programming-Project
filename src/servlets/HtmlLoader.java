@@ -8,15 +8,33 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import server.RequestParser.RequestInfo;
 
+/**
+ * Serves static HTML files from a configured application directory.
+ * This servlet is intended for reusable static content delivery under the
+ * {@code /app/} URI prefix while protecting against path traversal.
+ */
 public class HtmlLoader implements Servlet {
     private static final String APP_PREFIX = "/app/";
 
     private final Path htmlRoot;
 
+    /**
+     * Creates a servlet that serves files from the provided HTML root directory.
+     *
+     * @param htmlFolder the folder containing the application's HTML assets
+     */
     public HtmlLoader(String htmlFolder) {
         this.htmlRoot = Paths.get(htmlFolder).toAbsolutePath().normalize();
     }
 
+    /**
+     * Resolves the requested application path, loads the matching file if it exists,
+     * and writes an HTTP response to the client.
+     *
+     * @param ri the parsed request information
+     * @param toClient the output stream connected to the client
+     * @throws IOException if the file cannot be read or the response cannot be written
+     */
     @Override
     public void handle(RequestInfo ri, OutputStream toClient) throws IOException {
         if (ri == null || toClient == null) {
@@ -58,6 +76,12 @@ public class HtmlLoader implements Servlet {
         writeResponse(toClient, "200 OK", body);
     }
 
+    /**
+     * Closes the servlet.
+     * This implementation does not hold external resources, so closing is a no-op.
+     *
+     * @throws IOException never thrown during normal operation
+     */
     @Override
     public void close() throws IOException {
     }

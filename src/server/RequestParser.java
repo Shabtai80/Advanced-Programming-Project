@@ -9,8 +9,23 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Parses raw HTTP requests into a reusable structured representation.
+ * The parser extracts the HTTP method, request URI, URI segments, headers,
+ * parameters, and request body so servlets can work with a higher-level API
+ * instead of manually reading the socket stream.
+ */
 public class RequestParser {
+    /**
+     * Creates a request parser instance.
+     * The parser is stateless and is typically used through its static methods.
+     */
+    public RequestParser() {
+    }
 
+    /**
+     * Immutable value object that stores the parsed details of a single HTTP request.
+     */
     public static class RequestInfo {
         private final String httpCommand;
         private final String uri;
@@ -19,6 +34,16 @@ public class RequestParser {
         private final Map<String, String> headers;
         private final byte[] content;
 
+        /**
+         * Creates a new parsed request snapshot.
+         *
+         * @param httpCommand the parsed HTTP method
+         * @param uri the original request URI
+         * @param uriSegments the URI path split into non-empty path segments
+         * @param parameters the query-string and parsed body parameters
+         * @param headers the request headers
+         * @param content the request body content after parsing
+         */
         public RequestInfo(String httpCommand, String uri, String[] uriSegments,
                 Map<String, String> parameters, Map<String, String> headers, byte[] content) {
             this.httpCommand = httpCommand;
@@ -29,31 +54,70 @@ public class RequestParser {
             this.content = content;
         }
 
+        /**
+         * Returns the parsed HTTP method.
+         *
+         * @return the HTTP method, such as {@code GET} or {@code POST}
+         */
         public String getHttpCommand() {
             return httpCommand;
         }
 
+        /**
+         * Returns the original request URI.
+         *
+         * @return the request URI exactly as parsed from the request line
+         */
         public String getUri() {
             return uri;
         }
 
+        /**
+         * Returns the non-empty path segments derived from the URI.
+         *
+         * @return the URI path split into segments
+         */
         public String[] getUriSegments() {
             return uriSegments;
         }
 
+        /**
+         * Returns the parsed request parameters.
+         * Parameters may originate from the query string and, for supported payloads,
+         * from the request body.
+         *
+         * @return a map of parsed request parameters
+         */
         public Map<String, String> getParameters() {
             return parameters;
         }
 
+        /**
+         * Returns the parsed request headers.
+         *
+         * @return a map of request headers keyed by header name
+         */
         public Map<String, String> getHeaders() {
             return headers;
         }
 
+        /**
+         * Returns the parsed request body content.
+         *
+         * @return the request body as bytes
+         */
         public byte[] getContent() {
             return content;
         }
     }
 
+    /**
+     * Parses an HTTP request from a buffered character stream.
+     *
+     * @param reader the reader supplying the raw HTTP request
+     * @return a parsed {@link RequestInfo}, or {@code null} if the request is missing or invalid
+     * @throws IOException if reading from the request stream fails
+     */
     public static RequestInfo parseRequest(BufferedReader reader) throws IOException {
         if (reader == null) {
             return null;

@@ -17,16 +17,35 @@ import java.util.Map;
 import server.RequestParser.RequestInfo;
 import views.HtmlGraphWriter;
 
+/**
+ * Accepts uploaded configuration files, recreates the runtime graph from the
+ * uploaded definition, and returns the rendered graph view.
+ * This servlet is the bridge between the reusable HTTP API and the project's
+ * agent/topic configuration model.
+ */
 public class ConfLoader implements Servlet {
     private static final String UPLOAD_DIR = "uploaded_configs";
 
     private final Path uploadRoot;
     private GenericConfig currentConfig;
 
+    /**
+     * Creates a configuration upload servlet that stores uploaded files under
+     * the project's upload directory.
+     */
     public ConfLoader() {
         this.uploadRoot = Paths.get(UPLOAD_DIR).toAbsolutePath().normalize();
     }
 
+    /**
+     * Processes a multipart configuration upload, rebuilds the active graph,
+     * preserves existing topic values when possible, and writes the generated
+     * graph HTML back to the client.
+     *
+     * @param ri the parsed upload request
+     * @param toClient the output stream connected to the client
+     * @throws IOException if the uploaded file cannot be stored or the response cannot be written
+     */
     @Override
     public synchronized void handle(RequestInfo ri, OutputStream toClient) throws IOException {
         if (ri == null || toClient == null) {
@@ -61,6 +80,11 @@ public class ConfLoader implements Servlet {
         }
     }
 
+    /**
+     * Closes the currently active configuration and releases its resources.
+     *
+     * @throws IOException if closing the active configuration fails
+     */
     @Override
     public synchronized void close() throws IOException {
         if (currentConfig != null) {

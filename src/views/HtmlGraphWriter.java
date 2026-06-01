@@ -16,6 +16,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
+/**
+ * Generates the HTML and SVG markup used to render the runtime graph.
+ * External developers can reuse this utility to convert a populated
+ * {@link Graph} into a browser-friendly visualization.
+ */
 public class HtmlGraphWriter {
     private static final int MIN_SVG_WIDTH = 850;
     private static final int MIN_SVG_HEIGHT = 500;
@@ -28,6 +33,19 @@ public class HtmlGraphWriter {
     private static final int ROW_GAP = 105;
     private static final int TOP_START_Y = 90;
 
+    /**
+     * Creates an HTML graph writer.
+     */
+    public HtmlGraphWriter() {
+    }
+
+    /**
+     * Converts a graph into HTML lines based on the project's graph template.
+     *
+     * @param graph the graph to render
+     * @return the generated HTML split into lines
+     * @throws IllegalStateException if the HTML template cannot be loaded
+     */
     public static List<String> getGraphHTML(Graph graph) {
         String template = loadTemplate();
         GraphLayout layout = buildLayout(graph);

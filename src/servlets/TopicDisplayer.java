@@ -11,7 +11,26 @@ import java.util.Comparator;
 import java.util.List;
 import server.RequestParser.RequestInfo;
 
+/**
+ * Displays the current set of topics and their latest published values as an HTML table.
+ * The servlet can also publish a new message to a topic when the request supplies
+ * the appropriate parameters.
+ */
 public class TopicDisplayer implements Servlet {
+    /**
+     * Creates a topic display servlet.
+     */
+    public TopicDisplayer() {
+    }
+
+    /**
+     * Optionally publishes a message to a topic and then renders the current topic
+     * state as an HTML table.
+     *
+     * @param ri the parsed request information
+     * @param toClient the output stream connected to the client
+     * @throws IOException if writing the response fails
+     */
     @Override
     public void handle(RequestInfo ri, OutputStream toClient) throws IOException {
         if (ri == null || toClient == null) {
@@ -29,6 +48,12 @@ public class TopicDisplayer implements Servlet {
         writeResponse(toClient, body);
     }
 
+    /**
+     * Closes the servlet.
+     * This implementation does not hold external resources, so closing is a no-op.
+     *
+     * @throws IOException never thrown during normal operation
+     */
     @Override
     public void close() throws IOException {
     }

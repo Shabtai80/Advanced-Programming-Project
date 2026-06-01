@@ -16,6 +16,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import servlets.Servlet;
 
+/**
+ * Default {@link HTTPServer} implementation for the project.
+ * This server listens on a TCP port, parses incoming HTTP requests, selects
+ * the best matching registered servlet by HTTP method and URI prefix, and
+ * handles requests concurrently by using a fixed-size thread pool.
+ */
 public class MyHTTPServer extends Thread implements HTTPServer {
     private final int port;
     private volatile boolean stop;
@@ -25,6 +31,13 @@ public class MyHTTPServer extends Thread implements HTTPServer {
     private final Map<String, Servlet> postServlets;
     private final Map<String, Servlet> deleteServlets;
 
+    /**
+     * Creates a server that listens on the supplied port and processes requests
+     * with a fixed number of worker threads.
+     *
+     * @param port the TCP port on which the server should listen
+     * @param nThreads the number of worker threads available for request handling
+     */
     public MyHTTPServer(int port, int nThreads) {
         this.port = port;
         this.stop = false;
@@ -34,6 +47,14 @@ public class MyHTTPServer extends Thread implements HTTPServer {
         this.deleteServlets = new ConcurrentHashMap<>();
     }
 
+    /**
+     * Registers a servlet for a specific HTTP method and URI prefix.
+     * The longest matching registered URI prefix is used when dispatching requests.
+     *
+     * @param httpCommand the HTTP method to register, such as {@code GET}, {@code POST}, or {@code DELETE}
+     * @param uri the URI prefix to associate with the servlet
+     * @param s the servlet that should handle matching requests
+     */
     @Override
     public void addServlet(String httpCommand, String uri, Servlet s) {
         Map<String, Servlet> servletMap = getServletMap(httpCommand);
@@ -42,6 +63,12 @@ public class MyHTTPServer extends Thread implements HTTPServer {
         }
     }
 
+    /**
+     * Removes a servlet mapping for a specific HTTP method and URI prefix.
+     *
+     * @param httpCommand the HTTP method whose mapping should be removed
+     * @param uri the URI prefix whose mapping should be removed
+     */
     @Override
     public void removeServlet(String httpCommand, String uri) {
         Map<String, Servlet> servletMap = getServletMap(httpCommand);
@@ -50,6 +77,10 @@ public class MyHTTPServer extends Thread implements HTTPServer {
         }
     }
 
+    /**
+     * Opens the server socket and continuously accepts client connections until
+     * the server is closed.
+     */
     @Override
     public void run() {
         try {
@@ -75,6 +106,10 @@ public class MyHTTPServer extends Thread implements HTTPServer {
         }
     }
 
+    /**
+     * Stops the server, closes the listening socket, shuts down the worker pool,
+     * and closes each registered servlet once.
+     */
     @Override
     public void close() {
         stop = true;

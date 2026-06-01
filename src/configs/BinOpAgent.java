@@ -5,6 +5,10 @@ import graph.Message;
 import graph.TopicManagerSingleton;
 import java.util.function.BinaryOperator;
 
+/**
+ * Configuration-layer binary-operation agent that subscribes to two input topics,
+ * applies a numeric operation, and publishes the result to an output topic.
+ */
 public class BinOpAgent implements Agent {
     private final String name;
     private final String firstInputTopic;
@@ -14,6 +18,15 @@ public class BinOpAgent implements Agent {
     private Message firstMessage;
     private Message secondMessage;
 
+    /**
+     * Creates a binary-operation agent and registers it with the relevant topics.
+     *
+     * @param name the display name of the agent
+     * @param firstInputTopic the first input topic name
+     * @param secondInputTopic the second input topic name
+     * @param outputTopic the output topic name
+     * @param operation the numeric operation to apply to the two input values
+     */
     public BinOpAgent(
         String name,
         String firstInputTopic,
@@ -35,17 +48,32 @@ public class BinOpAgent implements Agent {
         reset();
     }
 
+    /**
+     * Returns the display name of the agent.
+     *
+     * @return the agent name
+     */
     @Override
     public String getName() {
         return name;
     }
 
+    /**
+     * Resets both cached input values to zero.
+     */
     @Override
     public void reset() {
         firstMessage = new Message(0);
         secondMessage = new Message(0);
     }
 
+    /**
+     * Updates the matching input value and publishes a result when both inputs
+     * contain valid numeric messages.
+     *
+     * @param topic the topic that supplied the new message
+     * @param msg the received message
+     */
     @Override
     public void callback(String topic, Message msg) {
         if (firstInputTopic.equals(topic)) {
@@ -62,6 +90,10 @@ public class BinOpAgent implements Agent {
         }
     }
 
+    /**
+     * Unsubscribes the agent from its input topics and removes its publisher
+     * registration from the output topic.
+     */
     @Override
     public void close() {
         TopicManagerSingleton.TopicManager topicManager = TopicManagerSingleton.get();

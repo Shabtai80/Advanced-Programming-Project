@@ -9,14 +9,38 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Generic configuration loader that creates agents from a plain-text
+ * configuration file by using reflection.
+ * This class enables external developers to deploy agent graphs without
+ * recompiling the HTTP server layer.
+ */
 public class GenericConfig implements Config {
     private String confFile;
     private final List<ParallelAgent> agents = new ArrayList<>();
 
+    /**
+     * Creates an empty generic configuration loader.
+     */
+    public GenericConfig() {
+    }
+
+    /**
+     * Sets the path to the configuration file that should be loaded.
+     *
+     * @param confFile the configuration file path
+     */
     public void setConfFile(String confFile) {
         this.confFile = confFile;
     }
 
+    /**
+     * Reads the configured file, instantiates the declared agents, and wraps
+     * them in {@link ParallelAgent} executors.
+     *
+     * @throws IllegalStateException if the file cannot be read or an agent cannot be created
+     * @throws IllegalArgumentException if the file format is invalid
+     */
     @Override
     public void create() {
         List<String> rawLines;
@@ -54,16 +78,29 @@ public class GenericConfig implements Config {
         }
     }
 
+    /**
+     * Returns the name of this configuration implementation.
+     *
+     * @return the configuration name
+     */
     @Override
     public String getName() {
         return "GenericConfig";
     }
 
+    /**
+     * Returns the version number of this configuration implementation.
+     *
+     * @return the configuration version
+     */
     @Override
     public int getVersion() {
         return 1;
     }
 
+    /**
+     * Closes every created parallel agent and clears the managed runtime state.
+     */
     @Override
     public void close() {
         for (ParallelAgent agent : agents) {

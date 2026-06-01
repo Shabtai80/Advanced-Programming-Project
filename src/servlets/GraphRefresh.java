@@ -8,7 +8,26 @@ import java.util.List;
 import server.RequestParser.RequestInfo;
 import views.HtmlGraphWriter;
 
+/**
+ * Returns the latest rendered graph view for the currently deployed configuration.
+ * This servlet allows clients to refresh the graph visualization without uploading
+ * a new configuration file.
+ */
 public class GraphRefresh implements Servlet {
+    /**
+     * Creates a graph refresh servlet.
+     */
+    public GraphRefresh() {
+    }
+
+    /**
+     * Renders the current graph state as HTML, or a fallback page when no graph
+     * has been loaded yet.
+     *
+     * @param ri the parsed request information
+     * @param toClient the output stream connected to the client
+     * @throws IOException if writing the response fails
+     */
     @Override
     public void handle(RequestInfo ri, OutputStream toClient) throws IOException {
         if (toClient == null) {
@@ -28,6 +47,12 @@ public class GraphRefresh implements Servlet {
         writeResponse(toClient, html.getBytes(StandardCharsets.UTF_8));
     }
 
+    /**
+     * Closes the servlet.
+     * This implementation does not hold external resources, so closing is a no-op.
+     *
+     * @throws IOException never thrown during normal operation
+     */
     @Override
     public void close() throws IOException {
     }
