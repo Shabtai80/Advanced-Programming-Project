@@ -1,0 +1,9 @@
+*.class
+out/
+bin/
+target/
+.idea/
+.vscode/
+*.iml
+.DS_Store
+uploaded_configs/

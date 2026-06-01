@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph View</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #1f2933;
+        }
+
+        .graph-shell {
+            padding: 16px;
+            overflow: auto;
+            width: 100%;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .graph-toolbar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .graph-toolbar button {
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #1f2933;
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .graph-toolbar button:hover {
+            background: #f8fafc;
+        }
+
+        .zoom-label {
+            font-size: 14px;
+            color: #475569;
+            min-width: 52px;
+        }
+
+        .graph-frame {
+            display: inline-block;
+            padding: 18px;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+            transform-origin: top left;
+        }
+
+        svg {
+            display: block;
+            border: 1px solid #d9e2ec;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+
+        .topic {
+            fill: #dbeafe;
+            stroke: #2563eb;
+            stroke-width: 2;
+        }
+
+        .agent {
+            fill: #dcfce7;
+            stroke: #16a34a;
+            stroke-width: 2;
+        }
+
+        .edge {
+            stroke: #475569;
+            stroke-width: 2;
+            fill: none;
+            marker-end: url(#arrowhead);
+        }
+
+        .node-label {
+            font-size: 14px;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            fill: #0f172a;
+        }
+
+        .topic-value {
+            font-size: 15px;
+            font-weight: 700;
+            text-anchor: middle;
+            fill: #0f172a;
+        }
+    </style>
+</head>
+<body>
+    <div class="graph-shell">
+        <div class="graph-toolbar">
+            <button type="button" id="zoomOutBtn">-</button>
+            <button type="button" id="zoomInBtn">+</button>
+            <button type="button" id="zoomResetBtn">Reset</button>
+            <span class="zoom-label" id="zoomLabel">100%</span>
+        </div>
+        <div class="graph-frame">
+            <svg width="{{SVG_WIDTH}}" height="{{SVG_HEIGHT}}" viewBox="0 0 {{SVG_WIDTH}} {{SVG_HEIGHT}}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Computational graph">
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#475569"></polygon>
+                    </marker>
+                </defs>
+
+                {{EDGES}}
+                {{NODES}}
+            </svg>
+        </div>
+    </div>
+    <script>
+        (function () {
+            const shell = document.querySelector('.graph-shell');
+            const frame = document.querySelector('.graph-frame');
+            const label = document.getElementById('zoomLabel');
+            const zoomInBtn = document.getElementById('zoomInBtn');
+            const zoomOutBtn = document.getElementById('zoomOutBtn');
+            const zoomResetBtn = document.getElementById('zoomResetBtn');
+
+            let scale = 1;
+            const minScale = 0.4;
+            const maxScale = 2.5;
+            const step = 0.1;
+
+            function clamp(value) {
+                return Math.max(minScale, Math.min(maxScale, value));
+            }
+
+            function updateZoom() {
+                frame.style.transform = `scale(${scale})`;
+                label.textContent = `${Math.round(scale * 100)}%`;
+            }
+
+            function setZoom(nextScale) {
+                scale = clamp(nextScale);
+                updateZoom();
+            }
+
+            zoomInBtn.addEventListener('click', function () {
+                setZoom(scale + step);
+            });
+
+            zoomOutBtn.addEventListener('click', function () {
+                setZoom(scale - step);
+            });
+
+            zoomResetBtn.addEventListener('click', function () {
+                setZoom(1);
+            });
+
+            shell.addEventListener('wheel', function (event) {
+                if (!event.ctrlKey) {
+                    return;
+                }
+
+                event.preventDefault();
+                const delta = event.deltaY < 0 ? step : -step;
+                setZoom(scale + delta);
+            }, { passive: false });
+
+            updateZoom();
+        }());
+    </script>
+</body>
+</html>
